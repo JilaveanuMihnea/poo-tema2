@@ -9,6 +9,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import main.tickets.baseTicket.Ticket;
+import main.tickets.bugTicket.BugTicket;
+import main.tickets.bugTicket.BugTicketFactory;
+import main.utils.CommandInput;
+import main.utils.InputLoader;
+
 /**
  * main.App represents the main application logic that processes input commands,
  * generates outputs, and writes them to a file
@@ -29,20 +35,18 @@ public class App {
      * @param inputPath path to the input file containing commands
      * @param outputPath path to the file where results should be written
      */
-    public static void run(final String inputPath, final String outputPath) {
-        // feel free to change this if needed
-        // however keep 'outputs' variable name to be used for writing
+    public static void run(final String inputPath, final String outputPath) throws IOException {
         List<ObjectNode> outputs = new ArrayList<>();
 
-        /*
-            TODO 1 :
-            Load initial user data and commands. we strongly recommend using jackson library.
-            you can use the reading from hw1 as a reference.
-            however you can use some of the more advanced features of
-            jackson library, available here: https://www.baeldung.com/jackson-annotations
-        */
+        // Loading input
+        List<CommandInput> commands = new InputLoader(inputPath).getCommands();
 
         // TODO 2: process commands.
+        for (CommandInput command : commands) {
+            if (command.getCommand().equals("create_ticket")) {
+
+            }
+        }
 
         // TODO 3: create objectnodes for output, add them to outputs list.
 
@@ -55,4 +59,5 @@ public class App {
             System.out.println("error writing to output file: " + e.getMessage());
         }
     }
+
 }
