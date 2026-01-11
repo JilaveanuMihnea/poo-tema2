@@ -1,5 +1,6 @@
 package main.tickets.baseTicket;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import main.utils.TicketInput;
@@ -7,7 +8,7 @@ import main.utils.TicketInput;
 @Getter
 @NoArgsConstructor
 public abstract class Ticket {
-    private enum BusinessPriority {LOW, MEDIUM, HIGH;}
+    private enum BusinessPriority {LOW, MEDIUM, HIGH, CRITICAL;}
     private enum Status {OPEN, IN_PROGRESS, CLOSED};
     private enum ExpertiseArea {FRONTEND, BACKEND, DEVOPS, DESIGN, DB};
 
@@ -55,10 +56,24 @@ public abstract class Ticket {
         this.type = builder.type;
         this.title = builder.title;
         this.businessPriority = builder.businessPriority;
-        this.status = builder.status;
+        this.status = Status.OPEN; // default status
         this.expertiseArea = builder.expertiseArea;
         this.description = builder.description;
         this.reportedBy = builder.reportedBy;
         this.id = builder.id;
+    }
+
+    public ObjectNode toObjectNode(com.fasterxml.jackson.databind.ObjectMapper mapper) {
+        ObjectNode ticketNode = mapper.createObjectNode();
+        ticketNode.put("id", this.id);
+        ticketNode.put("type", this.type);
+        ticketNode.put("title", this.title);
+        ticketNode.put("businessPriority", this.businessPriority.toString());
+        ticketNode.put("status", this.status.toString());
+        ticketNode.put("expertiseArea", this.expertiseArea.toString());
+        ticketNode.put("reportedBy", this.reportedBy);
+        if (this.description != null)
+            ticketNode.put("description", this.description);
+        return ticketNode;
     }
 }

@@ -1,5 +1,7 @@
 package main.tickets.featureRequestTicket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import main.utils.TicketInput;
@@ -39,5 +41,13 @@ public class FeatureRequestTicket extends Ticket {
         super(builder);
         this.businessValue = builder.businessValue;
         this.customerDemand = builder.customerDemand;
+    }
+
+    @Override
+    public ObjectNode toObjectNode(ObjectMapper mapper) {
+        ObjectNode ticketNode = super.toObjectNode(mapper);
+        ticketNode.put("businessValue", businessValue.toString());
+        ticketNode.put("customerDemand", customerDemand.toString());
+        return ticketNode;
     }
 }

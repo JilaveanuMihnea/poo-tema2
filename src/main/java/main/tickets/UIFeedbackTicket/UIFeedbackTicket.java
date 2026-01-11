@@ -1,5 +1,7 @@
 package main.tickets.UIFeedbackTicket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import main.utils.TicketInput;
@@ -62,5 +64,19 @@ public class UIFeedbackTicket extends Ticket {
         this.usabilityScore = builder.usabilityScore;
         this.screenshotUrl = builder.screenshotUrl;
         this.suggestedFix = builder.suggestedFix;
+    }
+
+    @Override
+    public ObjectNode toObjectNode(ObjectMapper mapper) {
+        ObjectNode ticketNode = super.toObjectNode(mapper);
+        ticketNode.put("businessValue", businessValue.toString());
+        ticketNode.put("usabilityScore", usabilityScore);
+        if (uiElementId != null)
+            ticketNode.put("uiElementId", uiElementId);
+        if (screenshotUrl != null)
+            ticketNode.put("screenshotUrl", screenshotUrl);
+        if (suggestedFix != null)
+            ticketNode.put("suggestedFix", suggestedFix);
+        return ticketNode;
     }
 }

@@ -1,5 +1,7 @@
 package main.tickets.bugTicket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import main.utils.TicketInput;
@@ -66,4 +68,19 @@ public class BugTicket extends Ticket{
         this.errorCode = builder.errorCode;
     }
 
+    @Override
+    public ObjectNode toObjectNode(ObjectMapper mapper) {
+        ObjectNode ticketNode = super.toObjectNode(mapper);
+        ticketNode.put("expectedBehavior", this.expectedBehavior);
+        ticketNode.put("actualBehavior", this.actualBehavior);
+        ticketNode.put("frequency", this.frequency.toString());
+        ticketNode.put("severity", this.severity.toString());
+        if (this.environment != null) {
+            ticketNode.put("environment", this.environment);
+        }
+        if (this.errorCode != null) {
+            ticketNode.put("errorCode", this.errorCode);
+        }
+        return ticketNode;
+    }
 }

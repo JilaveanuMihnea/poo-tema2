@@ -9,11 +9,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import main.tickets.TicketHandler;
 import main.tickets.baseTicket.Ticket;
 import main.tickets.bugTicket.BugTicket;
 import main.tickets.bugTicket.BugTicketFactory;
 import main.utils.CommandInput;
 import main.utils.InputLoader;
+import main.utils.OutputHandler;
+import main.commands.*;
 
 /**
  * main.App represents the main application logic that processes input commands,
@@ -28,6 +31,8 @@ public class App {
     private static final ObjectWriter WRITER =
             new ObjectMapper().writer().withDefaultPrettyPrinter();
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     /**
      * Runs the application: reads commands from an input file,
      * processes them, generates results, and writes them to an output file
@@ -37,14 +42,28 @@ public class App {
      */
     public static void run(final String inputPath, final String outputPath) throws IOException {
         List<ObjectNode> outputs = new ArrayList<>();
+        OutputHandler outputHandler = new OutputHandler(outputs);
 
         // Loading input
         List<CommandInput> commands = new InputLoader(inputPath).getCommands();
 
         // TODO 2: process commands.
+        TicketHandler ticketHandler = new TicketHandler();
         for (CommandInput command : commands) {
-            if (command.getCommand().equals("create_ticket")) {
-
+            if (command.getCommand().equals("reportTicket")) {
+                new ReportTicketCommand(
+                        ticketHandler,
+                        command.getParams(),
+                        outputHandler,
+                        MAPPER
+                ).execute();
+            } else if (command.getCommand().equals("viewTickets")) {
+                new ViewTicketsCommand(
+                        ticketHandler,
+                        command,
+                        outputHandler,
+                        MAPPER
+                ).execute();
             }
         }
 
