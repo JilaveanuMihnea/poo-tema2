@@ -1,12 +1,14 @@
 package main.tickets.UIFeedbackTicket;
 
+import main.exceptions.AnonymousReportException;
 import main.tickets.baseTicket.Ticket;
 import main.tickets.baseTicket.TicketFactory;
 
 public class UITicketFactory extends TicketFactory {
     @Override
-    public Ticket createTicket(main.utils.TicketInput ticketInput) {
-        UIFeedbackTicket.Builder builder = new UIFeedbackTicket.Builder(ticketInput);
+    public Ticket createTicket(main.utils.TicketInput ticketInput, String timestamp)
+    throws AnonymousReportException {
+        UIFeedbackTicket.Builder builder = new UIFeedbackTicket.Builder(ticketInput, timestamp);
 
         if (ticketInput.getScreenshotUrl() != null) {
             builder.screenshotUrl(ticketInput.getScreenshotUrl());

@@ -18,11 +18,15 @@ import java.util.List;
 @Getter
 public final class InputLoader {
     private final ArrayList<CommandInput> commands;
+    private final ArrayList<UserInput> users;
 
-    public InputLoader(final String filePath) throws IOException {
+    public InputLoader(final String filePathCommands, final String filePathUsers) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        List<CommandInput> list = mapper.readValue(new File(filePath),
+        List<CommandInput> list = mapper.readValue(new File(filePathCommands),
                         new com.fasterxml.jackson.core.type.TypeReference<List<CommandInput>>() {});
         this.commands = new ArrayList<>(list);
+        List<UserInput> users = mapper.readValue(new File(filePathUsers),
+                new com.fasterxml.jackson.core.type.TypeReference<List<UserInput>>() {});
+        this.users = new ArrayList<>(users);
     }
 }

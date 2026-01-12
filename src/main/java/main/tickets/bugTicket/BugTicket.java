@@ -2,6 +2,7 @@ package main.tickets.bugTicket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import main.exceptions.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import main.utils.TicketInput;
@@ -28,8 +29,8 @@ public class BugTicket extends Ticket{
         private String environment; // optional
         private Integer errorCode; // optional
 
-        public Builder(TicketInput ticketInput) {
-            mandatory(ticketInput);
+        public Builder(TicketInput ticketInput, String timestamp) {
+            mandatory(ticketInput, timestamp);
             this.expectedBehavior = ticketInput.getExpectedBehavior();
             this.actualBehavior = ticketInput.getActualBehavior();
             this.frequency = Frequency.valueOf(ticketInput.getFrequency());
@@ -51,14 +52,15 @@ public class BugTicket extends Ticket{
             return this;
         }
 
-        @Override
-        public BugTicket build() {
+        public BugTicket build()
+        throws AnonymousReportException {
             return new BugTicket(this);
         }
 
     }
 
-    private BugTicket(Builder builder) {
+    private BugTicket(Builder builder)
+        throws AnonymousReportException {
         super(builder);
         this.expectedBehavior = builder.expectedBehavior;
         this.actualBehavior = builder.actualBehavior;
@@ -66,21 +68,5 @@ public class BugTicket extends Ticket{
         this.severity = builder.severity;
         this.environment = builder.environment;
         this.errorCode = builder.errorCode;
-    }
-
-    @Override
-    public ObjectNode toObjectNode(ObjectMapper mapper) {
-        ObjectNode ticketNode = super.toObjectNode(mapper);
-        ticketNode.put("expectedBehavior", this.expectedBehavior);
-        ticketNode.put("actualBehavior", this.actualBehavior);
-        ticketNode.put("frequency", this.frequency.toString());
-        ticketNode.put("severity", this.severity.toString());
-        if (this.environment != null) {
-            ticketNode.put("environment", this.environment);
-        }
-        if (this.errorCode != null) {
-            ticketNode.put("errorCode", this.errorCode);
-        }
-        return ticketNode;
     }
 }

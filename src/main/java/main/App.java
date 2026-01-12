@@ -10,9 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import main.tickets.TicketHandler;
-import main.tickets.baseTicket.Ticket;
-import main.tickets.bugTicket.BugTicket;
-import main.tickets.bugTicket.BugTicketFactory;
+import main.users.UserHandler;
+import main.utils.ProjectState;
 import main.utils.CommandInput;
 import main.utils.InputLoader;
 import main.utils.OutputHandler;
@@ -32,6 +31,8 @@ public class App {
             new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static ProjectState projectState = ProjectState.TESTING;
+
 
     /**
      * Runs the application: reads commands from an input file,
@@ -45,21 +46,36 @@ public class App {
         OutputHandler outputHandler = new OutputHandler(outputs);
 
         // Loading input
-        List<CommandInput> commands = new InputLoader(inputPath).getCommands();
+        InputLoader input = new InputLoader(inputPath, INPUT_USERS_FIELD);
+        List<CommandInput> commands = input.getCommands();
+
+        projectState.startTestingPeriod(commands.getFirst().getTimestamp());
+//        System.out.println(projectState.getEndDate());
+
+        UserHandler userHandler = UserHandler.getInstance();
+        userHandler.loadUsers(input.getUsers());
+
 
         // TODO 2: process commands.
         TicketHandler ticketHandler = new TicketHandler();
         for (CommandInput command : commands) {
+            if (!projectState.checkPeriodActive(command.getTimestamp(), projectState)) {
+                projectState = ProjectState.DEVELOPMENT;
+            }
+
             if (command.getCommand().equals("reportTicket")) {
                 new ReportTicketCommand(
                         ticketHandler,
-                        command.getParams(),
+                        userHandler,
+                        command,
+                        projectState,
                         outputHandler,
                         MAPPER
                 ).execute();
             } else if (command.getCommand().equals("viewTickets")) {
                 new ViewTicketsCommand(
                         ticketHandler,
+                        userHandler,
                         command,
                         outputHandler,
                         MAPPER
