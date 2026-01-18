@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import main.exceptions.AnonymousReportException;
 import main.tickets.baseTicket.Ticket;
 import main.tickets.baseTicket.TicketFactory;
+import main.users.UserHandler;
 import main.users.user.User;
 import main.utils.TicketInput;
 
@@ -13,11 +14,20 @@ import java.util.*;
 
 @Getter
 public class TicketHandler {
+    private static TicketHandler instance;
     private List<Ticket> tickets;
 
-    public TicketHandler(){
+    private TicketHandler() {
         this.tickets = new ArrayList<Ticket>();
     }
+
+    public static TicketHandler getInstance() {
+        if (instance == null) {
+            instance = new TicketHandler();
+        }
+        return instance;
+    }
+
 
     public void addTicket(TicketInput ticketInput, String timestamp)
     throws AnonymousReportException {

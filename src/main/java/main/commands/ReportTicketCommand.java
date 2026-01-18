@@ -12,13 +12,9 @@ import main.utils.OutputHandler;
 import main.utils.ProjectState;
 import main.utils.TicketInput;
 
-public class ReportTicketCommand implements Command {
+public class ReportTicketCommand extends BaseCommand implements Command {
     private TicketHandler ticketHandler;
-    public UserHandler userHandler;
-    private CommandInput commandInput;
     private ProjectState projectState;
-    private OutputHandler outputHandler;
-    private ObjectMapper mapper;
 
     public ReportTicketCommand(TicketHandler ticketHandler,
                                UserHandler userHandler,
@@ -26,28 +22,23 @@ public class ReportTicketCommand implements Command {
                                ProjectState projectState,
                                OutputHandler outputHandler,
                                ObjectMapper mapper) {
+        super(userHandler, commandInput, outputHandler, mapper);
         this.ticketHandler = ticketHandler;
-        this.commandInput = commandInput;
-        this.outputHandler = outputHandler;
-        this.mapper = mapper;
         this.projectState = projectState;
-        this.userHandler = userHandler;
     }
 
     @Override
     public void execute() {
-        ObjectNode outputNode = mapper.createObjectNode();
-        outputNode.put("command", "reportTicket");
-        outputNode.put("username", commandInput.getUsername());
-        outputNode.put("timestamp", commandInput.getTimestamp());
-        try {
-            validate(commandInput.getUsername(), projectState);
-        } catch (ReportOutOfTestingException e) {
-            outputNode.put("error", "Tickets can only be reported during testing phases.");
+        ObjectNode outputNode = createBaseOutputNode("reportTicket");
+
+        if(!validate(outputNode)) {
             outputHandler.addOutput(outputNode);
             return;
-        } catch (UserNotFoundException e) {
-            outputNode.put("error", "The user " + commandInput.getUsername() + " does not exist.");
+        }
+        try {
+            validateState(projectState);
+        } catch (ReportOutOfTestingException e) {
+            outputNode.put("error", "Tickets can only be reported during testing phases.");
             outputHandler.addOutput(outputNode);
             return;
         }
@@ -59,14 +50,10 @@ public class ReportTicketCommand implements Command {
         }
     }
 
-    private void validate(String username, ProjectState projectState)
-            throws ReportOutOfTestingException,
-                   UserNotFoundException {
+    private void validateState(ProjectState projectState)
+            throws ReportOutOfTestingException {
         if (projectState != ProjectState.TESTING) {
             throw new ReportOutOfTestingException();
-        }
-        if (!userHandler.isUser(username)) {
-            throw new UserNotFoundException();
         }
     }
 

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import main.milestones.MilestoneHandler;
 import main.tickets.TicketHandler;
 import main.users.UserHandler;
 import main.utils.ProjectState;
@@ -49,17 +50,21 @@ public class App {
         InputLoader input = new InputLoader(inputPath, INPUT_USERS_FIELD);
         List<CommandInput> commands = input.getCommands();
 
+        projectState = ProjectState.TESTING;
         projectState.startTestingPeriod(commands.getFirst().getTimestamp());
-//        System.out.println(projectState.getEndDate());
+
 
         UserHandler userHandler = UserHandler.getInstance();
         userHandler.loadUsers(input.getUsers());
 
+        MilestoneHandler milestoneHandler = MilestoneHandler.getInstance();
+        TicketHandler ticketHandler = TicketHandler.getInstance();
+
 
         // TODO 2: process commands.
-        TicketHandler ticketHandler = new TicketHandler();
+
         for (CommandInput command : commands) {
-            if (!projectState.checkPeriodActive(command.getTimestamp(), projectState)) {
+            if (projectState == ProjectState.TESTING && projectState.updateProjectState(command.getTimestamp())) {
                 projectState = ProjectState.DEVELOPMENT;
             }
 
@@ -76,6 +81,23 @@ public class App {
                 new ViewTicketsCommand(
                         ticketHandler,
                         userHandler,
+                        command,
+                        outputHandler,
+                        MAPPER
+                ).execute();
+            } else if (command.getCommand().equals("createMilestone")) {
+                new CreateMilestoneCommand(
+                        ticketHandler,
+                        userHandler,
+                        milestoneHandler,
+                        command,
+                        outputHandler,
+                        MAPPER
+                ).execute();
+            } else if (command.getCommand().equals("viewMilestones")) {
+                new ViewMilestonesCommand(
+                        userHandler,
+                        milestoneHandler,
                         command,
                         outputHandler,
                         MAPPER

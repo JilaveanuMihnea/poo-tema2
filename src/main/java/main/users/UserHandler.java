@@ -28,7 +28,7 @@ public class UserHandler {
         }
     }
 
-    public boolean isUser(String username) {
+    public boolean userExists(String username) {
         for (User user : users) {
             if (user.getUsername().equals(username)) {
                 return true;
