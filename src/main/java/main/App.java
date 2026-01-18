@@ -9,10 +9,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import main.milestones.MilestoneHandler;
 import main.tickets.TicketHandler;
-import main.tickets.baseTicket.Ticket;
-import main.tickets.bugTicket.BugTicket;
-import main.tickets.bugTicket.BugTicketFactory;
+import main.users.UserHandler;
+import main.utils.ProjectState;
 import main.utils.CommandInput;
 import main.utils.InputLoader;
 import main.utils.OutputHandler;
@@ -32,6 +32,8 @@ public class App {
             new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static ProjectState projectState = ProjectState.TESTING;
+
 
     /**
      * Runs the application: reads commands from an input file,
@@ -45,21 +47,57 @@ public class App {
         OutputHandler outputHandler = new OutputHandler(outputs);
 
         // Loading input
-        List<CommandInput> commands = new InputLoader(inputPath).getCommands();
+        InputLoader input = new InputLoader(inputPath, INPUT_USERS_FIELD);
+        List<CommandInput> commands = input.getCommands();
+
+        projectState = ProjectState.TESTING;
+        projectState.startTestingPeriod(commands.getFirst().getTimestamp());
+
+
+        UserHandler userHandler = UserHandler.getInstance();
+        userHandler.loadUsers(input.getUsers());
+
+        MilestoneHandler milestoneHandler = MilestoneHandler.getInstance();
+        TicketHandler ticketHandler = TicketHandler.getInstance();
+
 
         // TODO 2: process commands.
-        TicketHandler ticketHandler = new TicketHandler();
+
         for (CommandInput command : commands) {
+            if (projectState == ProjectState.TESTING && projectState.updateProjectState(command.getTimestamp())) {
+                projectState = ProjectState.DEVELOPMENT;
+            }
+
             if (command.getCommand().equals("reportTicket")) {
                 new ReportTicketCommand(
                         ticketHandler,
-                        command.getParams(),
+                        userHandler,
+                        command,
+                        projectState,
                         outputHandler,
                         MAPPER
                 ).execute();
             } else if (command.getCommand().equals("viewTickets")) {
                 new ViewTicketsCommand(
                         ticketHandler,
+                        userHandler,
+                        command,
+                        outputHandler,
+                        MAPPER
+                ).execute();
+            } else if (command.getCommand().equals("createMilestone")) {
+                new CreateMilestoneCommand(
+                        ticketHandler,
+                        userHandler,
+                        milestoneHandler,
+                        command,
+                        outputHandler,
+                        MAPPER
+                ).execute();
+            } else if (command.getCommand().equals("viewMilestones")) {
+                new ViewMilestonesCommand(
+                        userHandler,
+                        milestoneHandler,
                         command,
                         outputHandler,
                         MAPPER

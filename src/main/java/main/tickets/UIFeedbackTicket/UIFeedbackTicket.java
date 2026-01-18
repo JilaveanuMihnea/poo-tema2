@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import main.exceptions.AnonymousReportException;
 import main.utils.TicketInput;
 import main.tickets.baseTicket.Ticket;
 
@@ -25,8 +26,8 @@ public class UIFeedbackTicket extends Ticket {
         private String screenshotUrl;
         private String suggestedFix;
 
-        public Builder(TicketInput ticketInput) {
-            mandatory(ticketInput);
+        public Builder(TicketInput ticketInput, String timestamp) {
+            mandatory(ticketInput, timestamp);
             this.businessValue = BusinessValue.valueOf(ticketInput.getBusinessValue());
             this.usabilityScore = ticketInput.getUsabilityScore();
         }
@@ -51,13 +52,15 @@ public class UIFeedbackTicket extends Ticket {
             return this;
         }
 
-        @Override
-        public UIFeedbackTicket build() {
+
+        public UIFeedbackTicket build()
+        throws AnonymousReportException {
             return new UIFeedbackTicket(this);
         }
     }
 
-    private UIFeedbackTicket(Builder builder) {
+    private UIFeedbackTicket(Builder builder)
+            throws AnonymousReportException {
         super(builder);
         this.uiElementId = builder.uiElementId;
         this.businessValue = builder.businessValue;
@@ -66,17 +69,17 @@ public class UIFeedbackTicket extends Ticket {
         this.suggestedFix = builder.suggestedFix;
     }
 
-    @Override
-    public ObjectNode toObjectNode(ObjectMapper mapper) {
-        ObjectNode ticketNode = super.toObjectNode(mapper);
-        ticketNode.put("businessValue", businessValue.toString());
-        ticketNode.put("usabilityScore", usabilityScore);
-        if (uiElementId != null)
-            ticketNode.put("uiElementId", uiElementId);
-        if (screenshotUrl != null)
-            ticketNode.put("screenshotUrl", screenshotUrl);
-        if (suggestedFix != null)
-            ticketNode.put("suggestedFix", suggestedFix);
-        return ticketNode;
-    }
+//    @Override
+//    public ObjectNode toObjectNode(ObjectMapper mapper) {
+//        ObjectNode ticketNode = super.toObjectNode(mapper);
+//        ticketNode.put("businessValue", businessValue.toString());
+//        ticketNode.put("usabilityScore", usabilityScore);
+//        if (uiElementId != null)
+//            ticketNode.put("uiElementId", uiElementId);
+//        if (screenshotUrl != null)
+//            ticketNode.put("screenshotUrl", screenshotUrl);
+//        if (suggestedFix != null)
+//            ticketNode.put("suggestedFix", suggestedFix);
+//        return ticketNode;
+//    }
 }

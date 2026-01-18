@@ -1,9 +1,11 @@
 package main.tickets.featureRequestTicket;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import main.exceptions.AnonymousReportException;
+import main.exceptions.ReportOutOfTestingException;
+import main.exceptions.UserNotFoundException;
 import main.utils.TicketInput;
 import main.tickets.baseTicket.Ticket;
 
@@ -20,8 +22,8 @@ public class FeatureRequestTicket extends Ticket {
         private BusinessValue businessValue; // required
         private CustomerDemand customerDemand; // required
 
-        public Builder(TicketInput ticketInput) {
-            mandatory(ticketInput);
+        public Builder(TicketInput ticketInput, String timestamp) {
+            mandatory(ticketInput, timestamp);
             this.businessValue = BusinessValue.valueOf(ticketInput.getBusinessValue());
             this.customerDemand = CustomerDemand.valueOf(ticketInput.getCustomerDemand());
         }
@@ -31,23 +33,16 @@ public class FeatureRequestTicket extends Ticket {
             return this;
         }
 
-        @Override
-        public FeatureRequestTicket build() {
+        public FeatureRequestTicket build()
+                throws AnonymousReportException {
             return new FeatureRequestTicket(this);
         }
     }
 
-    private FeatureRequestTicket(Builder builder) {
+    private FeatureRequestTicket(Builder builder)
+            throws AnonymousReportException {
         super(builder);
         this.businessValue = builder.businessValue;
         this.customerDemand = builder.customerDemand;
-    }
-
-    @Override
-    public ObjectNode toObjectNode(ObjectMapper mapper) {
-        ObjectNode ticketNode = super.toObjectNode(mapper);
-        ticketNode.put("businessValue", businessValue.toString());
-        ticketNode.put("customerDemand", customerDemand.toString());
-        return ticketNode;
     }
 }
